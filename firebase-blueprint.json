@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "UserPreferences": {
+      "title": "UserPreferences",
+      "description": "Customized personality and recognition parameters for the AI Voice Assistant Zoya.",
+      "type": "object",
+      "properties": {
+        "creatorName": {
+          "type": "string",
+          "description": "The name of the creator/boss."
+        },
+        "role": {
+          "type": "string",
+          "description": "How Zoya should address the creator (e.g. Boss, Master, Sir)."
+        },
+        "sassyLevel": {
+          "type": "integer",
+          "description": "Zoya's sassiness quotient (1 to 5)."
+        },
+        "favoriteTopic": {
+          "type": "string",
+          "description": "The creator's preferred roast or discussion topic."
+        },
+        "customNotes": {
+          "type": "string",
+          "description": "Custom memories and context Zoya remembers."
+        },
+        "voiceName": {
+          "type": "string",
+          "description": "The prebuilt TTS voice ID for Zoya."
+        }
+      },
+      "required": ["creatorName", "role", "sassyLevel", "favoriteTopic", "customNotes", "voiceName"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A single text transcript in the history of conversations.",
+      "type": "object",
+      "properties": {
+        "sender": {
+          "type": "string",
+          "enum": ["user", "zoya"],
+          "description": "The sender of the message."
+        },
+        "text": {
+          "type": "string",
+          "description": "The actual message text content."
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Timestamp in milliseconds."
+        }
+      },
+      "required": ["sender", "text", "timestamp"]
+    }
+  },
+  "firestore": {
+    "preferences/{userId}": {
+      "schema": "UserPreferences",
+      "description": "Stores user-specific preferences and customization parameters."
+    },
+    "users/{userId}/conversations/{convId}": {
+      "schema": "ChatMessage",
+      "description": "Stores user-specific conversation history transcripts."
+    }
+  }
+}

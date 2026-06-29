@@ -1,0 +1,6 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "database": "ai-studio-remixzoyaaivoice-34fc1361-0eee-4a89-a760-faeba9a6e5e6"
+  }
+}

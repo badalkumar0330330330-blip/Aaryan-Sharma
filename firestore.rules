@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions for validation
+    function isValidId(id) {
+      return id is string && id.size() <= 128;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidPreferences(data) {
+      return data.creatorName is string && data.creatorName.size() <= 100
+          && data.role is string && data.role.size() <= 100
+          && data.sassyLevel is number && data.sassyLevel >= 1 && data.sassyLevel <= 5
+          && data.favoriteTopic is string && data.favoriteTopic.size() <= 200
+          && data.customNotes is string && data.customNotes.size() <= 1000
+          && data.voiceName is string && data.voiceName.size() <= 50;
+    }
+
+    function isValidMessage(data) {
+      return data.sender is string && (data.sender == 'user' || data.sender == 'zoya')
+          && data.text is string && data.text.size() <= 5000
+          && data.timestamp is int;
+    }
+
+    // Match Preferences collection (isolated by user ID)
+    match /preferences/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow create, update: if isOwner(userId) && isValidId(userId) && isValidPreferences(request.resource.data);
+      allow delete: if false;
+    }
+
+    // Match Conversations collection (isolated by user ID)
+    match /users/{userId}/conversations/{convId} {
+      allow read: if isOwner(userId) && isValidId(userId);
+      allow create: if isOwner(userId) && isValidId(userId) && isValidId(convId) && isValidMessage(request.resource.data);
+      allow delete: if isOwner(userId) && isValidId(userId) && isValidId(convId);
+    }
+  }
+}
